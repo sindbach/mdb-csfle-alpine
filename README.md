@@ -20,8 +20,11 @@ The above command should build a Docker image with a tag name `mdb-csfle-alpine`
 
 ## Execution Step
 
+Please substitute `<MONGODB CONN URI>` below with a valid MongoDB connection string. 
+
+### Runtime: linux-musl-x64 
 ```s
-docker run --rm -e MONGODB_URI=<MONGODB ATLAS URI> mdb-csfle-alpine "dotnet publish -o out -c release-standalone -r linux-musl-x64 --self-contained; dotnet /code/app/out/app.dll"
+docker run --rm -e MONGODB_URI=<MONGODB CONN URI> mdb-csfle-alpine "dotnet publish -o out-standalone -c release-standalone -r linux-musl-x64 --self-contained; cp -v /code/app/libmongocrypt.so /code/app/out-standalone/; dotnet /code/app/out-standalone/app.dll"
 ```
 
 Output: 
@@ -31,10 +34,33 @@ Microsoft (R) Build Engine version 17.1.1+a02f73656 for .NET
 Copyright (C) Microsoft Corporation. All rights reserved.
 
   Determining projects to restore...
-  Restored /code/app/app.csproj (in 15.05 sec).
+  Restored /code/app/app.csproj (in 13.91 sec).
   app -> /code/app/bin/release-standalone/net6.0/linux-musl-x64/app.dll
-  app -> /code/app/out/
+  app -> /code/app/out-standalone/
+'/code/app/libmongocrypt.so' -> '/code/app/out-standalone/libmongocrypt.so'
 Original string 123456789.
-Encrypted value Encrypted:0x0157ebca8bec814fe6970ea78d977c8dad0212659ca8a676f0448461524134a032b49c623b15fc17a5d7fc3463458bb69e11e91bafc23aee07389b5ab6f670762caabbc7a77c661e5c1c53dc97e1d608c4ba.
-Decrypted document { "_id" : ObjectId("62625f5ced0a774db45738b8"), "encryptedField" : "123456789" }.
+Encrypted value Encrypted:0x012a927d4114e54e32abdfa4bfc756a1d30220b842942d3c2e5cc13060a4b2d0d0560877d24bfbd8f09ab72cbf8700b74c52585ba0023e2a54261ce2e288f917ba859700db9a7ffee452fcf08c414ddfc3cc.
+Decrypted document { "_id" : ObjectId("6262702c702aaa2c316fd64c"), "encryptedField" : "123456789" }.
+```
+
+### Runtime: native 
+
+```s
+docker run --rm -e MONGODB_URI=<MONGODB CONN URI> mdb-csfle-alpine "dotnet publish -o out -c release; cp -v /code/app/libmongocrypt.so /code/app/out/runtimes/linux/native/; dotnet /code/app/out/app.dll"
+```
+
+Output: 
+
+```s
+Microsoft (R) Build Engine version 17.1.1+a02f73656 for .NET
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+  Determining projects to restore...
+  Restored /code/app/app.csproj (in 5.52 sec).
+  app -> /code/app/bin/release/net6.0/app.dll
+  app -> /code/app/out/
+'/code/app/libmongocrypt.so' -> '/code/app/out/runtimes/linux/native/libmongocrypt.so'
+Original string 123456789.
+Encrypted value Encrypted:0x01cd3925ba2a8240aaacd30fc10a8043a30289483a21728a766760fe1310446f3ed8a4ecb079198680607a941ac4e03a6de72e0b4cbd814c5816c18e1ef8f9ca433e25511ae92fd9738658407b68f21d40c2.
+Decrypted document { "_id" : ObjectId("6262709fa625de28bf446848"), "encryptedField" : "123456789" }.
 ```

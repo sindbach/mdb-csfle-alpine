@@ -21,9 +21,9 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine3.15
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 RUN apk update
 
-RUN mkdir -p /code/app/out
+RUN mkdir -p /code/app/
 WORKDIR /code/app
 COPY ./csharp /code/app
-COPY --from=builder /usr/local/lib/libmongocrypt.so.0.0.0 /code/app/out/libmongocrypt.so
+COPY --from=builder /usr/local/lib/libmongocrypt.so.0.0.0 /code/app/libmongocrypt.so 
 
 ENTRYPOINT [ "/bin/sh", "-c" ]
